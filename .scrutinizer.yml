@@ -1,0 +1,11 @@
+build:
+    nodes:
+        coverage:
+            tests:
+                override:
+                    - php-scrutinizer-run
+                    -
+                        command: 'vendor/bin/phpunit --coverage-clover=some-file'
+                        coverage:
+                            file: 'some-file'
+                            format: 'clover'

@@ -1,0 +1,61 @@
+<?php
+
+
+use PHPassword\Serializer\Strategy\ObjectSerializerStrategy;
+use PHPassword\UnitTest\SerializableClass;
+use PHPUnit\Framework\TestCase;
+
+class ObjectSerializerStrategyTest extends TestCase
+{
+    /**
+     * @var ObjectSerializerStrategy
+     */
+    private $serializer;
+
+    public function setUp()
+    {
+        $this->serializer = new ObjectSerializerStrategy();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testCanSerialize()
+    {
+        $this->assertTrue($this->serializer->canSerializeData(new \stdClass()));
+        $this->assertFalse($this->serializer->canSerializeData('foo'));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testSerialize()
+    {
+        $firstSerializable = new SerializableClass(9000, 'Vegeta');
+        $secondSerializable = new SerializableClass(1337, 'Trunks', $firstSerializable);
+        $firstSerialized = $this->serializer->serialize($firstSerializable);
+        $secondSerialized = $this->serializer->serialize($secondSerializable);
+
+        $this->assertJson($firstSerialized);
+        $this->assertJson($secondSerialized);
+        $this->assertNotFalse(strpos($firstSerialized, '\\"name\\":\\"Vegeta\\"'));
+        $this->assertFalse(strpos($firstSerialized, '\\hiddenSecret\\:'));
+        $this->assertNotFalse(strpos($secondSerialized, '\\"name\\":\\"Vegeta\\"'));
+        $this->assertNotFalse(strpos($secondSerialized, '\\"id\\":1337'));
+        $this->assertFalse(strpos($secondSerialized, '\\hiddenSecret\\:'));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testDeserialize()
+    {
+        $testString = file_get_contents(__DIR__ . '/src/serialized.json');
+        /* @var SerializableClass $deserialized */
+        $deserialized = $this->serializer->deserialize($testString);
+
+        $this->assertInstanceOf(SerializableClass::class, $deserialized);
+        $this->assertSame('Trunks', $deserialized->getName());
+        $this->assertSame('Vegeta', $deserialized->getSerializableClass()->getName());
+    }
+}
