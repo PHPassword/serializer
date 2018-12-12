@@ -52,7 +52,7 @@ class ObjectSerializerStrategyTest extends TestCase
     public function testSerializationFails()
     {
         $this->expectException(SerializationException::class);
-        $this->strategy->serialize('String');
+        $this->strategy->serialize(/** @scrutinizer ignore-type */ 'String');
     }
 
     /**
