@@ -9,9 +9,29 @@ class ObjectNormalizer implements NormalizerInterface
      * @param mixed $data
      * @return bool
      */
-    public function supportsData($data)
+    public function supportsNormalization($data): bool
     {
         return is_object($data);
+    }
+
+    /**
+     * @param array $data
+     * @param string $class
+     * @return bool
+     */
+    public function supportDenormalization(array $data, string $class): bool
+    {
+        return true;
+    }
+
+    /**
+     * @param array $data
+     * @param string $class
+     * @return object|void
+     */
+    public function denormalize(array $data, string $class)
+    {
+        // TODO: Implement denormalize() method.
     }
 
     /**
@@ -20,7 +40,7 @@ class ObjectNormalizer implements NormalizerInterface
      * @throws SerializationException
      * @throws \ReflectionException
      */
-    public function normalize($object)
+    public function normalize($object): array
     {
         $attributes = [];
 
