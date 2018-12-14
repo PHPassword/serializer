@@ -53,6 +53,13 @@ class SerializerTest extends TestCase
     {
         $serializable = new SerializableClass(10, 'Son-Gohan', new SerializableClass(11, 'Piccolo'));
         $serialized = $this->serializer->serialize($serializable);
+
+        /* Remove read only vars for deserializing */
+        $decoded = json_decode($serialized, true);
+        unset($decoded['readOnlyVar'], $decoded['serializableClass']['readOnlyVar']);
+        $serialized = json_encode($decoded);
+        /* End */
+
         /* @var SerializableClass $deserialized */
         $deserialized = $this->serializer->deserialize($serialized, SerializableClass::class);
 
