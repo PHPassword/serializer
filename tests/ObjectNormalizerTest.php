@@ -145,7 +145,7 @@ class ObjectNormalizerTest extends TestCase
     /**
      * @throws \Exception
      */
-    public function testDenormalizeOnClassWithoutContructor()
+    public function testDenormalizeOnClassWithoutConstructor()
     {
         $data = [
             'id' => 999999,
