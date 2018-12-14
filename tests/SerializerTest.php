@@ -1,6 +1,6 @@
 <?php
 
-use PHPassword\Serializer\Strategy\ObjectSerializerStrategy;
+use PHPassword\Serializer\ObjectNormalizer;
 use PHPassword\Serializer\SerializationException;
 use PHPassword\Serializer\Serializer;
 use PHPassword\UnitTest\SerializableClass;
@@ -15,8 +15,7 @@ class SerializerTest extends TestCase
 
     public function setUp()
     {
-        $this->serializer = new Serializer();
-        $this->serializer->addStrategy(new ObjectSerializerStrategy());
+        $this->serializer = new Serializer([new ObjectNormalizer()]);
     }
 
     /**
@@ -28,17 +27,23 @@ class SerializerTest extends TestCase
             new SerializableClass(1, 'Son-Goku', new SerializableClass(0, 'Bardock'))
         );
 
-        $this->assertStringStartsWith(ObjectSerializerStrategy::class . ':::', $serialized);
-    }
+        $this->assertJson($serialized);
+        $decoded = json_decode($serialized, true);
+        $this->assertArrayHasKey('id', $decoded);
+        $this->assertSame(1, $decoded['id']);
+        $this->assertArrayHasKey('name', $decoded);
+        $this->assertSame('Son-Goku', $decoded['name']);
+        $this->assertArrayHasKey('serializableClass', $decoded);
+        $this->assertArrayNotHasKey('hiddenSecret', $decoded);
 
-    /**
-     * @throws SerializationException
-     */
-    public function testSerializeFails()
-    {
-        $serializer = new Serializer();
-        $this->expectException(SerializationException::class);
-        $serializer->serialize(new SerializableClass(9, 'Radditz'));
+        $nestedData = $decoded['serializableClass'];
+        $this->assertArrayHasKey('id', $nestedData);
+        $this->assertSame(0, $nestedData['id']);
+        $this->assertArrayHasKey('name', $nestedData);
+        $this->assertSame('Bardock', $nestedData['name']);
+        $this->assertArrayHasKey('serializableClass', $nestedData);
+        $this->assertNull($nestedData['serializableClass']);
+        $this->assertArrayNotHasKey('hiddenSecret', $nestedData);
     }
 
     /**
@@ -49,7 +54,7 @@ class SerializerTest extends TestCase
         $serializable = new SerializableClass(10, 'Son-Gohan', new SerializableClass(11, 'Piccolo'));
         $serialized = $this->serializer->serialize($serializable);
         /* @var SerializableClass $deserialized */
-        $deserialized = $this->serializer->deserialize($serialized);
+        $deserialized = $this->serializer->deserialize($serialized, SerializableClass::class);
 
         $this->assertInstanceOf(SerializableClass::class, $deserialized);
         $this->assertSame($serializable->getName(), $deserialized->getName());
@@ -59,9 +64,28 @@ class SerializerTest extends TestCase
     /**
      * @throws SerializationException
      */
-    public function testDeserializeFails()
+    public function testDeserializeFailsInvalidJson()
     {
         $this->expectException(SerializationException::class);
-        $this->serializer->deserialize('someRandomString');
+        $this->serializer->deserialize('{"incomplete": "json", ', SerializableClass::class);
+    }
+
+    /**
+     * @throws SerializationException
+     */
+    public function testDeserializeFailsNonExistentClass()
+    {
+        $this->expectException(SerializationException::class);
+        $this->serializer->deserialize('{"id": 5}', 'Class\\That\\Does\\Not\\Exist');
+    }
+
+    /**
+     * @throws SerializationException
+     */
+    public function testDeserializeFailsNoNormalizer()
+    {
+        $serializer = new Serializer();
+        $this->expectException(SerializationException::class);
+        $serializer->deserialize('{"name":"Shenlong"}', SerializableClass::class);
     }
 }
