@@ -42,7 +42,7 @@ class ObjectNormalizer implements NormalizerInterface
             }
 
             if(!$reflection->hasMethod('set' . ucfirst($propertyName))){
-                continue;
+                throw new SerializationException(sprintf('Property %s is not writable for class %s', $propertyName, $class));
             }
 
             $method = $reflection->getMethod('set' . ucfirst($propertyName));
