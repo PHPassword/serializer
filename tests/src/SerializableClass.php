@@ -7,6 +7,11 @@ class SerializableClass
     /**
      * @var int
      */
+    private static $foo = 1;
+
+    /**
+     * @var int
+     */
     private $id;
 
     /**
@@ -23,6 +28,22 @@ class SerializableClass
      * @var int
      */
     private $hiddenSecret;
+
+    /**
+     * @return int
+     */
+    public static function getFoo(): int
+    {
+        return self::$foo;
+    }
+
+    /**
+     * @param int $foo
+     */
+    public static function setFoo(int $foo): void
+    {
+        self::$foo = $foo;
+    }
 
     /**
      * SerializableClass constructor.
