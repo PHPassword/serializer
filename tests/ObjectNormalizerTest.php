@@ -50,6 +50,7 @@ class ObjectNormalizerTest extends TestCase
         $this->assertArrayHasKey('name', $normalized);
         $this->assertSame($normalized['name'], $object->getName());
         $this->assertArrayHasKey('serializableClass', $normalized);
+        $this->assertArrayHasKey('readOnlyVar', $normalized);
         $this->assertArrayNotHasKey('foo', $normalized);
         $this->assertSame($normalized['serializableClass']['id'], $object->getSerializableClass()->getId());
         $this->assertSame($normalized['serializableClass']['name'], $object->getSerializableClass()->getName());
@@ -63,7 +64,7 @@ class ObjectNormalizerTest extends TestCase
     public function testNormalizeFails()
     {
         $this->expectException(SerializationException::class);
-        $this->normalizer->normalize('JustAString');
+        $this->normalizer->normalize(/** @scrutinizer ignore-type */ 'JustAString');
     }
 
     /**
