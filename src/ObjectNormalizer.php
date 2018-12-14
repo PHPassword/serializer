@@ -34,7 +34,7 @@ class ObjectNormalizer implements NormalizerInterface
     {
         try {
             $reflection = new \ReflectionClass($class);
-            $entity = $reflection->newInstance();
+            $entity = $reflection->newInstanceWithoutConstructor();
 
             foreach ($data as $propertyName => $propertyValue) {
                 if (!$reflection->hasProperty($propertyName)) {
