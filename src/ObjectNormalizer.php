@@ -82,7 +82,6 @@ class ObjectNormalizer implements NormalizerInterface
      * @param object $object
      * @return array
      * @throws SerializationException
-     * @throws \ReflectionException
      */
     public function normalize($object): array
     {
@@ -92,21 +91,26 @@ class ObjectNormalizer implements NormalizerInterface
             throw new SerializationException('Argument is no object');
         }
 
-        $reflection = new \ReflectionClass($object);
+        try {
+            $reflection = new \ReflectionClass($object);
 
-        foreach($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $reflMethod){
-            if (!$this->isPossibleValidMethod($reflMethod)
-                || ($expectedAttribute = $this->getExpectedAttributeName($reflMethod)) === ''
-                || !$reflection->hasProperty($expectedAttribute)) {
-                continue;
+            foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $reflMethod) {
+                if (!$this->isPossibleValidMethod($reflMethod)
+                    || ($expectedAttribute = $this->getExpectedAttributeName($reflMethod)) === ''
+                    || !$reflection->hasProperty($expectedAttribute)) {
+                    continue;
+                }
+
+                $value = $reflMethod->invoke($object);
+                if (is_object($value)) {
+                    $value = $this->normalize($value);
+                }
+
+                $attributes[$expectedAttribute] = $value;
             }
-
-            $value = $reflMethod->invoke($object);
-            if(is_object($value)){
-                $value = $this->normalize($value);
-            }
-
-            $attributes[$expectedAttribute] = $value;
+        }
+        catch(\ReflectionException $e){
+            throw new SerializationException($e->getMessage(), $e->getCode(), $e);
         }
 
         return $attributes;
