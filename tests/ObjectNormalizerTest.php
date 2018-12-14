@@ -130,4 +130,14 @@ class ObjectNormalizerTest extends TestCase
         $this->expectException(SerializationException::class);
         $this->normalizer->denormalize($data, SerializableClass::class);
     }
+
+    /**
+     * @throws ReflectionException
+     * @throws SerializationException
+     */
+    public function testDenormaliteFailsOnMissingClass()
+    {
+        $this->expectException(SerializationException::class);
+        $this->normalizer->denormalize([], 'SomeNonExistentClass');
+    }
 }

@@ -29,24 +29,28 @@ class ObjectNormalizer implements NormalizerInterface
      * @param string $class
      * @return object
      * @throws SerializationException
-     * @throws \ReflectionException
      */
     public function denormalize(array $data, string $class)
     {
-        $reflection = new \ReflectionClass($class);
-        $entity = $reflection->newInstanceWithoutConstructor();
+        try {
+            $reflection = new \ReflectionClass($class);
+            $entity = $reflection->newInstanceWithoutConstructor();
 
-        foreach($data as $propertyName => $propertyValue){
-            if(!$reflection->hasProperty($propertyName)){
-                throw new SerializationException(sprintf('Invalid property %s for class %s', $propertyName, $class));
+            foreach ($data as $propertyName => $propertyValue) {
+                if (!$reflection->hasProperty($propertyName)) {
+                    throw new SerializationException(sprintf('Invalid property %s for class %s', $propertyName, $class));
+                }
+
+                if (!$reflection->hasMethod('set' . ucfirst($propertyName))) {
+                    throw new SerializationException(sprintf('Property %s is not writable for class %s', $propertyName, $class));
+                }
+
+                $method = $reflection->getMethod('set' . ucfirst($propertyName));
+                $this->setProperty($method, $propertyValue, $entity);
             }
-
-            if(!$reflection->hasMethod('set' . ucfirst($propertyName))){
-                throw new SerializationException(sprintf('Property %s is not writable for class %s', $propertyName, $class));
-            }
-
-            $method = $reflection->getMethod('set' . ucfirst($propertyName));
-            $this->setProperty($method, $propertyValue, $entity);
+        }
+        catch(\ReflectionException $e){
+            throw new SerializationException($e->getMessage(), $e->getCode(), $e);
         }
 
         return $entity;
