@@ -65,4 +65,48 @@ class ObjectNormalizerTest extends TestCase
         $this->expectException(SerializationException::class);
         $this->normalizer->normalize('JustAString');
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function testDenormalize()
+    {
+        $data = [
+            'id' => 4444,
+            'name' => 'Beerus',
+            'serializableClass' => [
+                'id' => 5555,
+                'name' => 'Whis'
+            ]
+        ];
+
+        /* @var SerializableClass $denormalized */
+        $denormalized = $this->normalizer->denormalize($data, SerializableClass::class);
+
+        $this->assertInstanceOf(SerializableClass::class, $denormalized);
+        $this->assertSame($data['id'], $denormalized->getId());
+        $this->assertSame($data['name'], $denormalized->getName());
+        $this->assertSame($data['serializableClass']['id'], $denormalized->getSerializableClass()->getId());
+        $this->assertSame($data['serializableClass']['name'], $denormalized->getSerializableClass()->getName());
+        $this->assertNull($denormalized->getSerializableClass()->getSerializableClass());
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testDenormalizationFailInvalidAttribute()
+    {
+        $data = [
+            'id' => 4,
+            'name' => '???',
+            'serializableClass' => [
+                'id' => 5,
+                'name' => '?????',
+                'nonExistentAttribute' => true
+            ]
+        ];
+
+        $this->expectException(SerializationException::class);
+        $this->normalizer->denormalize($data, SerializableClass::class);
+    }
 }

@@ -28,6 +28,7 @@ class ObjectNormalizer implements NormalizerInterface
      * @param array $data
      * @param string $class
      * @return object
+     * @throws SerializationException
      * @throws \ReflectionException
      */
     public function denormalize(array $data, string $class)
@@ -36,6 +37,10 @@ class ObjectNormalizer implements NormalizerInterface
         $entity = $reflection->newInstanceWithoutConstructor();
 
         foreach($data as $propertyName => $propertyValue){
+            if(!$reflection->hasProperty($propertyName)){
+                throw new SerializationException(sprintf('Invalid property %s for class %s', $propertyName, $class));
+            }
+
             if(!$reflection->hasMethod('set' . ucfirst($propertyName))){
                 continue;
             }
@@ -51,6 +56,7 @@ class ObjectNormalizer implements NormalizerInterface
      * @param \ReflectionMethod $method
      * @param $value
      * @param $entity
+     * @throws SerializationException
      * @throws \ReflectionException
      */
     private function setProperty(\ReflectionMethod $method, $value, $entity)
