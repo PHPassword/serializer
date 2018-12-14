@@ -61,7 +61,7 @@ class ObjectNormalizer implements NormalizerInterface
 
         /* @var \ReflectionParameter $parameter */
         $parameter = $method->getParameters()[0];
-        if(class_exists($parameter->getType()->getName())){
+        if($value !== null && class_exists($parameter->getType()->getName())){
             $value = $this->denormalize($value, $parameter->getType()->getName());
         }
 
