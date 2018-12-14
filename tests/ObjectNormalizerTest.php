@@ -4,6 +4,7 @@
 use PHPassword\Serializer\ObjectNormalizer;
 use PHPassword\Serializer\SerializationException;
 use PHPassword\UnitTest\SerializableClass;
+use PHPassword\UnitTest\SerializableClassWithoutContrcutor;
 use PHPUnit\Framework\TestCase;
 
 class ObjectNormalizerTest extends TestCase
@@ -135,9 +136,25 @@ class ObjectNormalizerTest extends TestCase
      * @throws ReflectionException
      * @throws SerializationException
      */
-    public function testDenormaliteFailsOnMissingClass()
+    public function testDenormalizeFailsOnMissingClass()
     {
         $this->expectException(SerializationException::class);
         $this->normalizer->denormalize([], 'SomeNonExistentClass');
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testDenormalizeOnClassWithoutContructor()
+    {
+        $data = [
+            'id' => 999999,
+            'name' => 'Zeno'
+        ];
+
+        $object = $this->normalizer->denormalize($data, SerializableClassWithoutContrcutor::class);
+        $this->assertInstanceOf(SerializableClassWithoutContrcutor::class, $object);
+        $this->assertSame($data['id'], $object->getId());
+        $this->assertSame($data['name'], $object->getName());
     }
 }
