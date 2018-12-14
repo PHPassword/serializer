@@ -27,11 +27,45 @@ class ObjectNormalizer implements NormalizerInterface
     /**
      * @param array $data
      * @param string $class
-     * @return object|void
+     * @return object
+     * @throws \ReflectionException
      */
     public function denormalize(array $data, string $class)
     {
-        // TODO: Implement denormalize() method.
+        $reflection = new \ReflectionClass($class);
+        $entity = $reflection->newInstanceWithoutConstructor();
+
+        foreach($data as $propertyName => $propertyValue){
+            if(!$reflection->hasMethod('set' . ucfirst($propertyName))){
+                continue;
+            }
+
+            $method = $reflection->getMethod('set' . ucfirst($propertyName));
+            $this->setProperty($method, $propertyValue, $entity);
+        }
+
+        return $entity;
+    }
+
+    /**
+     * @param \ReflectionMethod $method
+     * @param $value
+     * @param $entity
+     * @throws \ReflectionException
+     */
+    private function setProperty(\ReflectionMethod $method, $value, $entity)
+    {
+        if($method->getNumberOfRequiredParameters() !== 1){
+            throw new \LogicException(sprintf('Invalid setter %s', $method->getName()));
+        }
+
+        /* @var \ReflectionParameter $parameter */
+        $parameter = $method->getParameters()[0];
+        if(class_exists($parameter->getType()->getName())){
+            $value = $this->denormalize($value, $parameter->getType()->getName());
+        }
+
+        $method->invoke($entity, $value);
     }
 
     /**
