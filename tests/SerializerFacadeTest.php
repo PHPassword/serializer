@@ -29,7 +29,7 @@ class SerializerFacadeTest extends TestCase
         $testObject = new SerializableClass(1, 'Nappa');
         $serialized = $this->facade->serialize($testObject);
         /* @var SerializableClass $deserialized */
-        $deserialized = $this->facade->deserialize($serialized);
+        $deserialized = $this->facade->deserialize($serialized, SerializableClass::class);
 
         $this->assertTrue(is_string($serialized));
         $this->assertInstanceOf(SerializableClass::class, $deserialized);
