@@ -8,13 +8,26 @@ interface NormalizerInterface
      * @param mixed $data
      * @return bool
      */
-    public function supportsData($data);
+    public function supportsNormalization($data): bool;
 
     /**
      * @param object $object
      * @return array
-     * @throws SerializationException
-     * @throws \ReflectionException
      */
-    public function normalize($object);
+    public function normalize($object): array;
+
+
+    /**
+     * @param array $data
+     * @param string $class
+     * @return bool
+     */
+    public function supportDenormalization(array $data, string $class): bool;
+
+    /**
+     * @param array $data
+     * @param string $class
+     * @return object
+     */
+    public function denormalize(array $data, string $class);
 }
