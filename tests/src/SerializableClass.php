@@ -30,6 +30,11 @@ class SerializableClass
     private $hiddenSecret;
 
     /**
+     * @var int
+     */
+    private $readOnlyVar;
+
+    /**
      * @return int
      */
     public static function getFoo(): int
@@ -57,6 +62,7 @@ class SerializableClass
         $this->name = $name;
         $this->serializableClass = $serializableClass;
         $this->hiddenSecret = rand(0, 9999);
+        $this->readOnlyVar = rand(1, 9);
     }
 
     /**
@@ -105,5 +111,13 @@ class SerializableClass
     public function setSerializableClass(?SerializableClass $serializableClass): void
     {
         $this->serializableClass = $serializableClass;
+    }
+
+    /**
+     * @return int
+     */
+    public function getReadOnlyVar(): int
+    {
+        return $this->readOnlyVar;
     }
 }
