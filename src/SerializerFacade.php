@@ -19,6 +19,7 @@ class SerializerFacade implements FacadeInterface
      * @param mixed $data
      * @return string
      * @throws SerializationException
+     * @throws \ReflectionException
      */
     public function serialize($data): string
     {
@@ -27,12 +28,13 @@ class SerializerFacade implements FacadeInterface
 
     /**
      * @param string $data
+     * @param string $class
      * @return object
      * @throws SerializationException
      */
-    public function deserialize(string $data)
+    public function deserialize(string $data, string $class)
     {
-        return $this->getSerializer()->deserialize($data);
+        return $this->getSerializer()->deserialize($data, $class);
     }
 
     /**
