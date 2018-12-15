@@ -4,7 +4,7 @@
 use PHPassword\Serializer\ObjectNormalizer;
 use PHPassword\Serializer\SerializationException;
 use PHPassword\UnitTest\SerializableClass;
-use PHPassword\UnitTest\SerializableClassWithoutContrcutor;
+use PHPassword\UnitTest\SerializableClassWithoutConstrcutor;
 use PHPUnit\Framework\TestCase;
 
 class ObjectNormalizerTest extends TestCase
@@ -152,8 +152,8 @@ class ObjectNormalizerTest extends TestCase
             'name' => 'Zeno'
         ];
 
-        $object = $this->normalizer->denormalize($data, SerializableClassWithoutContrcutor::class);
-        $this->assertInstanceOf(SerializableClassWithoutContrcutor::class, $object);
+        $object = $this->normalizer->denormalize($data, SerializableClassWithoutConstrcutor::class);
+        $this->assertInstanceOf(SerializableClassWithoutConstrcutor::class, $object);
         $this->assertSame($data['id'], $object->getId());
         $this->assertSame($data['name'], $object->getName());
     }

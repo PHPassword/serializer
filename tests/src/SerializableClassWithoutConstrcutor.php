@@ -2,7 +2,7 @@
 
 namespace PHPassword\UnitTest;
 
-class SerializableClassWithoutContrcutor
+class SerializableClassWithoutConstrcutor
 {
     /**
      * @var int
