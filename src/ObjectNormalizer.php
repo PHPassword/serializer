@@ -107,6 +107,9 @@ class ObjectNormalizer implements NormalizerInterface
                 if (is_object($value)) {
                     $value = $this->normalize($value);
                 }
+                elseif(is_array($value) || $value instanceof \Traversable){
+                    $value = $this->normalizeArrayValues($value);
+                }
 
                 $attributes[$expectedAttribute] = $value;
             }
@@ -116,6 +119,23 @@ class ObjectNormalizer implements NormalizerInterface
         }
 
         return $attributes;
+    }
+
+    /**
+     * @param array|\Traversable $array
+     * @return array|\Traversable
+     * @throws SerializationException
+     * @throws \ReflectionException
+     */
+    private function normalizeArrayValues($array)
+    {
+        foreach($array as &$item){
+            if(is_object($item)){
+                $item = $this->normalize($item);
+            }
+        }
+
+        return $array;
     }
 
     /**
