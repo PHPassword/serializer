@@ -6,6 +6,11 @@ namespace PHPassword\Serializer;
 class ObjectNormalizer implements NormalizerInterface
 {
     /**
+     * @var array
+     */
+    private $cached = [];
+
+    /**
      * @param mixed $data
      * @return bool
      */
@@ -87,12 +92,26 @@ class ObjectNormalizer implements NormalizerInterface
      */
     public function normalize($object): array
     {
-        $attributes = [];
-
         if(!is_object($object)){
             throw new SerializationException('Argument is no object');
         }
 
+        $objectHash = spl_object_hash($object);
+        if(isset($this->cached[$objectHash])){
+            return $this->cached[$objectHash];
+        }
+
+        return $this->cached[$objectHash] = $this->normalizeObject($object);
+    }
+
+    /**
+     * @param object $object
+     * @return array
+     * @throws SerializationException
+     */
+    private function normalizeObject($object): array
+    {
+        $attributes = [];
         try {
             $reflection = new \ReflectionClass($object);
 
